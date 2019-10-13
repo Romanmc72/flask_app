@@ -5,4 +5,14 @@ from app import app
 @app.route('/index')
 def index():
     user = {'username': 'Miguel'}
-    return render_template('index.html', title='Home', user=user)
+    list_of_things = [
+        'What is new at work?',
+        'What are you doing in Docker?',
+        'What was the last thing you coded for fun?',
+        'What other non-coding things do I do with my computer?',
+    ]
+    return render_template(
+        'index.html',
+        title='Home',
+        list_of_things=list_of_things
+    )
