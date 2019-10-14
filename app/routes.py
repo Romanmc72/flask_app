@@ -1,3 +1,9 @@
+#!/usr/bin/env python3
+"""
+This file contains the various routes to
+different pages on the Flask site,
+and how those html templates are populated.
+"""
 from flask import render_template
 from app import app
 

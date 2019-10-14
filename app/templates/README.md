@@ -1,0 +1,2 @@
+# Templates
+In this file we have the HTML templates. Using Jinja we can load these templates into Python functions which return `str`'s and inherit base templates to create a standard look and feel. FLask will serve these templates over the webserver to whoever requests them and fill in the information in the bacground to create a clean look and feel. We also have the ability to use `if then else` blocks and `for` loops within these templates.
