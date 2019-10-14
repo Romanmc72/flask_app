@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-FLASK_APP=./microblog.py
+FLASK_APP=./flask_app.py
 echo "Setting up ${FLASK_APP} as the Flask App"
 echo "Opening localhost"
 open http://localhost:5000
