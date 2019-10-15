@@ -6,10 +6,14 @@ and how those html templates are populated.
 """
 from flask import render_template
 from app import app
+from app.forms import LoginForm
 
 @app.route('/')
 @app.route('/index')
 def index():
+    """
+    # TODO DOCUMENT ME
+    """
     user = {'username': 'Miguel'}
     list_of_things = [
         'What is new at work?',
@@ -22,3 +26,11 @@ def index():
         title='Home',
         list_of_things=list_of_things
     )
+
+@app.route('/login')
+def login():
+    """
+    # TODO DOCUMENT ME
+    """
+    form = LoginForm()
+    return render_template("login.html", title='Login', form=form)

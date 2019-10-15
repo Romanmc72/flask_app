@@ -7,4 +7,7 @@ back end from attacks on the front.
 import os
 
 class Config(object):
+    """
+    # TODO DOCUMENT ME
+    """
     SECRET_KEY = os.getenv('SECRET_KEY', 'oooh_what_is_it?')
