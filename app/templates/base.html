@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html>
     <div>Roman's site
-        <a href="/index">Home</a>
-        <a href="/login">Login</a>
+        <a href="{{ url_for('index') }}">Home</a>
+        <a href="{{ url_for('login') }}">Login</a>
     </div>
 	<head>
         {% if title %}
@@ -19,9 +19,20 @@
         {% else %}
             <header>Apache Webserve hosted on RaspberryPi Model 2 B+</header>
         {% endif %}
-    <main>
-        {% block content %}{% endblock %}
-	</main>
+        <hr>
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                <ul>
+                    {% for message in messages %}
+                    <li>{{ message }}</li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+            {% endwith %}
+        </hr>
+        <main>
+            {% block content %}{% endblock %}
+        </main>
         {% if footer %}
             <footer>{{ footer }}</footer>
         {% else %}
