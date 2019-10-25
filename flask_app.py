@@ -6,3 +6,17 @@ $ `flask run`
 
 """
 from app import app
+from app.models import User
+
+@app.shell_context_processor
+def make_shell_context():
+    """
+    Description
+    -----------
+    flask can run an interactive shell that will
+    pre-import anything specified in this function
+    under the alias provided for easy python
+    interpreter testing without having to retype
+    the same import statements every time.
+    """
+    return {'db': db, 'User': User}
