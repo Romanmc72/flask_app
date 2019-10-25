@@ -37,7 +37,6 @@ function db.downgrade() {
 }
 
 function flask.run() {
-    FLASK_APP=./flask_app.py
     echo "Setting up ${FLASK_APP} as the Flask App"
     echo "Entering virtual environment"
     source venv/bin/activate
@@ -59,4 +58,9 @@ function flask.deploy() {
 function flask.tutorial() {
     echo "Opening the tutorial in your browser"
     open https://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-i-hello-world
+}
+
+function flask.shell() {
+    echo "Launching the flask shell."
+    flask shell
 }
