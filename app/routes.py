@@ -8,17 +8,32 @@ from flask import render_template
 from flask import flash
 from flask import redirect
 from flask import url_for
+from flask_login import current_user
+from flask_login import login_user
 
 from app import app
 from app.forms import LoginForm
+from app.models import MyUsers
 
 @app.route('/')
 @app.route('/index')
-def index():
+def index() -> render_template:
     """
-    # TODO DOCUMENT ME
+    Description
+    -----------
+    This function defines the root `/'
+    and `/index' route for the website
+
+    Params
+    ------
+    None
+
+    Return
+    ------
+    returns a rendered Jinja2 HTML template to be served
+    over the flask application under the `/index' or `/' path
     """
-    user = {'username': 'Miguel'}
+    user = current_user
     list_of_things = [
         'What is new at work?',
         'What are you doing in Docker?',
@@ -27,17 +42,54 @@ def index():
     ]
     return render_template(
         'index.html',
-        title='Home',
+        title=f"Welcome {user.user_name.data}",
         list_of_things=list_of_things
     )
 
 @app.route('/login', methods=['GET', 'POST'])
-def login():
+def login() -> render_template:
     """
-    # TODO DOCUMENT ME
+    Description
+    -----------
+
+    Params
+    ------
+    None
+
+    Return
+    ------
+    returns a rendered Jinja2 HTML template to be served
+    over the flask application under the `/login' path
     """
+
+    # flask_login stores the concept of a current user
+    # if the user is logged in, this will redirect to
+    # the home page
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+
+    # If the user is not logged in then the flask
+    # application will begin the login and
+    # authenitcation process
     form = LoginForm()
     if form.validate_on_submit():
-        flash(f"Login requested for {form.username.data}, remember me = {form.remember_me.data}")
+
+        # This returns the user for the form submission if one exists
+        # Otherwise returns None
+        user = MyUsers.query.filter_by(username=form.user_name.data).first()
+
+        if user is None or not user.check_password(form.password.data):
+            
+            # Go back to login if no user or wrong password
+            flash("[ Invalid Username Or Passowrd ]")
+            return redirect(url_for('login'))
+
+        # If login succeeds
+        # (user is non None and password is not invalid)
+        # go back to home page
+        login_user(user, remember=form.remember_me.data)
         return redirect(url_for('index'))
+
+    # Otherwise stay here on the login page
+    # and wait for the form submission
     return render_template("login.html", title='Login', form=form)
