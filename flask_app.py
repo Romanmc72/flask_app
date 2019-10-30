@@ -7,7 +7,7 @@ $ `flask run`
 """
 from app import app
 from app import db
-from app.models import MyUsers
+from app.models import User
 
 @app.shell_context_processor
 def make_shell_context():
@@ -20,4 +20,4 @@ def make_shell_context():
     interpreter testing without having to retype
     the same import statements every time.
     """
-    return {'db': db, 'User': MyUsers}
+    return {'db': db, 'User': User}

@@ -13,7 +13,7 @@ from flask_login import login_user
 
 from app import app
 from app.forms import LoginForm
-from app.models import MyUsers
+from app.models import User
 
 @app.route('/')
 @app.route('/index')
@@ -42,7 +42,7 @@ def index() -> render_template:
     ]
     return render_template(
         'index.html',
-        title=f"Welcome {user.user_name.data}",
+        title=f"Welcome {user.username.data}",
         list_of_things=list_of_things
     )
 
@@ -76,7 +76,7 @@ def login() -> render_template:
 
         # This returns the user for the form submission if one exists
         # Otherwise returns None
-        user = MyUsers.query.filter_by(username=form.user_name.data).first()
+        user = User.query.filter_by(username=form.username.data).first()
 
         if user is None or not user.check_password(form.password.data):
             

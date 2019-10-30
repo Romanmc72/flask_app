@@ -14,11 +14,11 @@ from app import login
 DEFAULT_SCHEMA = {"schema": os.getenv('DEFAULT_SCHEMA', 'flask_app')}
 
 
-class MyUsers(UserMixin, db.Model):
+class User(UserMixin, db.Model):
     """
     Description
     -----------
-    This class defines the MyUsers
+    This class defines the User
     object to represent a particular
     user for the application and will be
     stored in the database associated
@@ -26,13 +26,13 @@ class MyUsers(UserMixin, db.Model):
     """
     __table_args__ = DEFAULT_SCHEMA
     user_id = db.Column(db.Integer, primary_key=True)
-    user_name = db.Column(db.String(64), index=True, unique=True)
+    username = db.Column(db.String(64), index=True, unique=True)
     email = db.Column(db.String(120), index=True, unique=True)
     password_hash = db.Column(db.String(128))
 
     def __repr__(self) -> str:
         """Returns a string representation of the User"""
-        return f"User <{self.user_name}>"
+        return f"User <{self.username}>"
     
     def set_password(self, password: str) -> None:
         """
@@ -72,7 +72,7 @@ class MyUsers(UserMixin, db.Model):
 
 
 @login.user_loader
-def load_user(id: str) -> MyUsers:
+def load_user(id: str) -> User:
     """
     Description
     -----------
@@ -87,4 +87,4 @@ def load_user(id: str) -> MyUsers:
     ------
     User object
     """
-    return MyUsers.query.get(int(id))
+    return User.query.get(int(id))
