@@ -19,5 +19,17 @@ def make_shell_context():
     under the alias provided for easy python
     interpreter testing without having to retype
     the same import statements every time.
+
+    Call this by running
+
+    $ `flask shell`
+
+    Params
+    ------
+    None
+
+    Return
+    ------
+    None
     """
     return {'db': db, 'User': User}

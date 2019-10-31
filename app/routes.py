@@ -4,12 +4,16 @@ This file contains the various routes to
 different pages on the Flask site,
 and how those html templates are populated.
 """
-from flask import render_template
 from flask import flash
 from flask import redirect
+from flask import render_template
+from flask import request
 from flask import url_for
 from flask_login import current_user
+from flask_login import login_required
 from flask_login import login_user
+from flask_login import logout_user
+from werkzeug.urls import url_parse
 
 from app import app
 from app.forms import LoginForm
@@ -17,6 +21,7 @@ from app.models import User
 
 @app.route('/')
 @app.route('/index')
+@login_required
 def index() -> render_template:
     """
     Description
@@ -33,7 +38,6 @@ def index() -> render_template:
     returns a rendered Jinja2 HTML template to be served
     over the flask application under the `/index' or `/' path
     """
-    user = current_user
     list_of_things = [
         'What is new at work?',
         'What are you doing in Docker?',
@@ -42,7 +46,6 @@ def index() -> render_template:
     ]
     return render_template(
         'index.html',
-        title=f"Welcome {user.username.data}",
         list_of_things=list_of_things
     )
 
@@ -51,6 +54,9 @@ def login() -> render_template:
     """
     Description
     -----------
+    This function routes the user either to the
+    login page or to the root/index page if the
+    user logs in or is logged in
 
     Params
     ------
@@ -79,7 +85,7 @@ def login() -> render_template:
         user = User.query.filter_by(username=form.username.data).first()
 
         if user is None or not user.check_password(form.password.data):
-            
+
             # Go back to login if no user or wrong password
             flash("[ Invalid Username Or Passowrd ]")
             return redirect(url_for('login'))
@@ -88,8 +94,36 @@ def login() -> render_template:
         # (user is non None and password is not invalid)
         # go back to home page
         login_user(user, remember=form.remember_me.data)
-        return redirect(url_for('index'))
+        
+        # If the user was directed to the login from another page,
+        # this will either retun them to page that they came from
+        # or will default them back to /index
+        next_page = request.args.get('next')
+        if not next_page or url_parse(next_page).netloc != '':
+            next_page = url_for('index')
+        return redirect(next_page)
 
     # Otherwise stay here on the login page
     # and wait for the form submission
     return render_template("login.html", title='Login', form=form)
+
+@app.route('/logout')
+def logout():
+    """
+    Description
+    -----------
+    This function takes the user to the logout page
+    and removes
+
+    Params
+    ------
+    None
+
+    Return
+    ------
+    logs a user out and then returns a rendered
+    Jinja2 HTML template to be served
+    over the flask application under the `/index' path
+    """
+    logout_user()
+    return redirect_url(url_for('/index'))
