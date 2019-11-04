@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 FLASK_APP=./flask_app.py
+source ./venv/bin/activate
 
 function db.up() {
     pushd $REPO/My_Dockerfiles/db/postgres/

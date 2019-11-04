@@ -126,4 +126,4 @@ def logout():
     over the flask application under the `/index' path
     """
     logout_user()
-    return redirect_url(url_for('/index'))
+    return redirect(url_for('index'))
