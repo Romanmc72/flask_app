@@ -19,6 +19,7 @@ from app import app
 from app.forms import LoginForm
 from app.models import User
 
+
 @app.route('/')
 @app.route('/index')
 @login_required
@@ -48,6 +49,7 @@ def index() -> render_template:
         'index.html',
         list_of_things=list_of_things
     )
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login() -> render_template:
@@ -106,6 +108,7 @@ def login() -> render_template:
     # Otherwise stay here on the login page
     # and wait for the form submission
     return render_template("login.html", title='Login', form=form)
+
 
 @app.route('/logout')
 def logout():
