@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>User: {{ user.username }}</h1>
+    <p>
+        Hello {{ user.username }},
+
+            It is great that you are here. Thank you for coming to this page. I made it just for you.
+            I sincerely hope you enjoy your time here. As a reward, please enjoy this gif of a cat doing silly things.
+    </p>
+    <iframe src="https://giphy.com/embed/Hcw7rjsIsHcmk" width="480" height="363" frameBorder="0" class="giphy-embed" allowFullScreen></iframe>
+    <p>
+        <a href="https://giphy.com/gifs/forum-image-react-Hcw7rjsIsHcmk">via GIPHY</a>
+    </p>
+{% endblock %}

@@ -16,7 +16,9 @@ from flask_login import logout_user
 from werkzeug.urls import url_parse
 
 from app import app
+from app import db
 from app.forms import LoginForm
+from app.forms import NewLoginForm
 from app.models import User
 
 
@@ -107,16 +109,17 @@ def login() -> render_template:
 
     # Otherwise stay here on the login page
     # and wait for the form submission
-    return render_template("login.html", title='Login', form=form)
+    return render_template("login.html", title='Login', form=form, footer="Log in, if you're new click 'I am new here'")
 
 
 @app.route('/logout')
-def logout():
+def logout() -> render_template:
     """
     Description
     -----------
-    This function takes the user to the logout page
-    and removes
+    This function logs the user out
+    of the site then redirects them
+    to the home page
 
     Params
     ------
@@ -130,3 +133,69 @@ def logout():
     """
     logout_user()
     return redirect(url_for('index'))
+
+
+@app.route('/user/<username>')
+@login_required
+def user(username: str) -> render_template:
+    """
+    Description
+    -----------
+    This functions takes a user to their
+    personal page after having logged in
+
+    Params
+    ------
+    :username: str
+    The username for a given user on the site.
+
+    Return
+    ------
+    Returns a rendered Jinja2 HTML template served
+    over the flask application under the
+    `/user/<username>' path, depending on the username
+    """
+    user = User.query.filter_by(username=username).first_or_404()
+    return render_template('user.html', user=user)
+
+
+@app.route('/new_login', methods=['GET', 'POST'])
+def new_login():
+    """
+    Description
+    -----------
+
+
+    Params
+    ------
+
+
+    Return
+    ------
+
+    """
+
+    # If a user that is already logged in
+    # somehow gets here, they'll get sent
+    # back to the home page
+    if current_user.is_authenticated:
+        redirect(url_for('index'))
+
+    # Upon submission of the form,
+    # everything should be validated,
+    # once that is done, if all things
+    # pass validly then the user will
+    # be sent to the next page home page
+    form = NewLoginForm()
+    if form.validate_on_submit():
+
+        # Instantiate the new user and add them to the database
+        new_user = User(username=form.username.data, email=form.email.data)
+        new_user.set_password(form.password.data)
+        db.session.add(new_user)
+        db.session.commit()
+        login_user(new_user, remember=True)
+
+        return redirect(url_for('index'))
+
+    return render_template('new_login.html', title='New kid alert!', form=form, footer='Welcome new person.')
