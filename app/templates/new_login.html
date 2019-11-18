@@ -4,6 +4,7 @@
     <h1>Welcome to the site new user!</h1>
     <p>Tell us how we should addresss you?</p>
     <form action="" method="post" novalidate>
+        {{ form.hidden_tag() }}
         <p>
             {{ form.username.label }}<br>
             {{ form.username(size=32) }}<br>

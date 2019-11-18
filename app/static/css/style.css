@@ -5,13 +5,13 @@ dy {
     color: black;
   }
 h1 {
-  background-color: black;
-  color: white;
+  background-color: rgb(245, 237, 191);
+  color: black;
 }
 ol {
-  background-color: orange;
+  background-color: rgba(168, 152, 152, 0.500);
   font-family: 'Times New Roman', Times, serif;
-  color: darkolivegreen
+  color: rgb(0, 0, 0)
 }
 nav ul li {
   list-style-type: none;
@@ -20,7 +20,7 @@ nav ul li {
   margin-left: 10px;
 }
 a {
-  color: blue
+  color: rgb(255, 115, 0)
 }  
 /**********************************
 This section is for styling tables
@@ -30,7 +30,7 @@ table, th, td {
   border-collapse: collapse;
 }
 tr {
-  background-color: PaleTurquoise;
+  background-color: white;
 }
 th, td {
   vertical-align: right;
@@ -38,11 +38,11 @@ th, td {
   text-align: right;
 }
 th {
-  color: purple;
+  color: black;
 }
 td {
-  color: purple;
+  color: black;
 }
 section {
-  background-color: #ff00ff
+  background-color: silver;
 }

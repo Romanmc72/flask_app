@@ -164,15 +164,19 @@ def new_login():
     """
     Description
     -----------
-
+    This function opens up a new user log
+    in page for users who have not previously
+    logged into the app
 
     Params
     ------
-
+    None
 
     Return
     ------
-
+    Returns a rendered Jinja2 HTML template served
+    over the flask application under the
+    `/new_login' path
     """
 
     # If a user that is already logged in
@@ -189,13 +193,24 @@ def new_login():
     form = NewLoginForm()
     if form.validate_on_submit():
 
-        # Instantiate the new user and add them to the database
-        new_user = User(username=form.username.data, email=form.email.data)
-        new_user.set_password(form.password.data)
-        db.session.add(new_user)
-        db.session.commit()
-        login_user(new_user, remember=True)
+        # Just make sure they don't already exist
+        # via either the email or the username
+        user = User.query.filter_by(username=form.username.data).first()
+        email = User.query.filter_by(email=form.email.data).first()
+        if not user and not email:
 
-        return redirect(url_for('index'))
+            # Instantiate the new user and add them to the database
+            new_user = User(username=form.username.data, email=form.email.data.lower())
+            new_user.set_password(form.password.data)
+            db.session.add(new_user)
+            db.session.commit()
+            login_user(new_user, remember=True)
+
+            # Then return to the home page.
+            return redirect(url_for('index'))
+        elif email:
+            form.email.errors.append('This email already exists')
+        elif user:
+            form.username.errors.append('This username already exists')
 
     return render_template('new_login.html', title='New kid alert!', form=form, footer='Welcome new person.')
