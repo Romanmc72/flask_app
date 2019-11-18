@@ -208,9 +208,12 @@ def new_login():
 
             # Then return to the home page.
             return redirect(url_for('index'))
-        elif email:
+        elif user and email:
+            form.username.errors.append('This username already exists')
             form.email.errors.append('This email already exists')
         elif user:
             form.username.errors.append('This username already exists')
+        elif email:
+            form.email.errors.append('This email already exists')
 
     return render_template('new_login.html', title='New kid alert!', form=form, footer='Welcome new person.')

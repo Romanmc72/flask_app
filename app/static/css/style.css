@@ -1,4 +1,3 @@
-
 dy {
     background-color: royalblue;
     font-family: "Helvetica", sans-serif;
@@ -9,7 +8,7 @@ h1 {
   color: black;
 }
 ol {
-  background-color: rgba(168, 152, 152, 0.500);
+  background-color: rgba(168, 152, 152, 0.300);
   font-family: 'Times New Roman', Times, serif;
   color: rgb(0, 0, 0)
 }
@@ -20,7 +19,7 @@ nav ul li {
   margin-left: 10px;
 }
 a {
-  color: rgb(255, 115, 0)
+  color: rgb(0, 0, 255)
 }  
 /**********************************
 This section is for styling tables
