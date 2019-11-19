@@ -196,7 +196,7 @@ def new_login():
         # Just make sure they don't already exist
         # via either the email or the username
         user = User.query.filter_by(username=form.username.data).first()
-        email = User.query.filter_by(email=form.email.data).first()
+        email = User.query.filter_by(email=form.email.data.lower()).first()
         if not user and not email:
 
             # Instantiate the new user and add them to the database
