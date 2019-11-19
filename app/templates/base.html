@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+    <!-- This is the navigation bar -->
     <div>Roman's site
         <a href="{{ url_for('index') }}">Home</a>
         {% if current_user.is_anonymous %}
@@ -9,6 +10,7 @@
             <a href="{{ url_for('logout') }}">Logout</a>
         {% endif %}
     </div>
+    <!-- This part appears on the browser tab -->
 	<head>
         {% if title %}
             <title>{{ title }}</title>
@@ -19,11 +21,19 @@
 		<meta charset="utf-8"/>
 	</head>
 	<body>
+        <!-- This part appears just below the navigation bar but before the big bold <h1> in the template -->
         {% if header %}
             <header>{{ header }}</header>
         {% else %}
             <header>Apache Webserve hosted on RaspberryPi Model 2 B+</header>
         {% endif %}
+        <!--
+            If any messages are flashed throughout
+            the routes.py or any other part of the
+            python code, they will be inserted here
+            by any pages that inherit this base
+            template
+        -->
         <hr>
             {% with messages = get_flashed_messages() %}
                 {% if messages %}
@@ -35,9 +45,16 @@
                 {% endif %}
             {% endwith %}
         </hr>
+        <!-- 
+            This portion of the code is where the
+            other templates insert themselves if
+            they inherit this file
+        -->
         <main>
             {% block content %}{% endblock %}
         </main>
+
+        <!-- If there is a footer it will be filled in, otherwise it just promises i will add more -->
         {% if footer %}
             <footer>{{ footer }}</footer>
         {% else %}
