@@ -11,6 +11,19 @@ thx bruh.
 ### Raspberry Pi
 So for this application I wanted to make it generalizeable enough to be deployed on either my raspberry pi server at home, or via a kubernetes setup. So a lot of these shell scripts are explicitly geared towards making dev/tes easier for locally testing the flask dev server, but for production I plan to launch it on nginx with gunicorn and a postgres backend.
 
+**User**
+Create the flask user (instead of running everything under the root)
+```bash
+groupadd -r flask_user
+useradd --shell /bin/bash --no-log-init --create-home -r -g flask_user flask_user
+```
+Clone this repo into that user's home directory, and change ownership to the flask user.
+```bash
+cd /home/flask_user
+git clone git@github.com:Romanmc72/flask_app.git
+sudo chown -r flask_user:flask_user flask_app
+```
+
 **Installing**
 Some steps I took to get the raspberry pi set up:
 Make sure apache is not installed or running, then install nginx:
@@ -28,9 +41,14 @@ I then installed postgres
 ```bash
 sudo apt install postgresql libpq-dev postgresql-client postgresql-client-common -y
 ```
+Then we have to install all of the python things. For this I logged out then logged back in as the new flask_user.
+```bash
+cd flask_app
+pip install --user -r requirements.txt
+```
 
 **Databse setup**
-signed in as the postgres superuser and created a flask user without superuser permissions.
+Signed out from the flask_user and came back as someone with root privileges then switched to the postgres superuser and created a flask_user for the db without superuser permissions. (make sure you remember the password for the database access, you will need it later)
 ```bash
 sudo su postgres
 createuser flask_user -P --interactive
@@ -64,7 +82,11 @@ flask_db=# \q
 exit
 ```
 
+**NGINX Setup**
+I am a total nginx n00b, so I tried to stick really closely to [what was laid out here](https://gist.github.com/kizniche/5cea47b44cc1bfd15da837a1b634b9a5) (same link as before) with a little copy and paste magic.
 
+**GUnicorn Setup**
+Likewise here I have no idea what I am actually doing, so I stuck to the gunicorn install into the pip requirements file, so if that all ran fine you should be able to run gunicorn.
 
 ## Deployments
 Not exactly cutting edge CICD here, but it does make my life easier to have some helpers and shortcuts to run for sending updates from this repo to the production server.
@@ -73,3 +95,5 @@ Not exactly cutting edge CICD here, but it does make my life easier to have some
 
 ### Kubernetes
 I started with testing on `docker-compose` then moved to `minikube`. Check out the dockerfiles [here]()
+
+# TODO fill this in
