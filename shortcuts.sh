@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
 FLASK_APP=./flask_app.py
-source ./venv/bin/activate
 
 function db.up() {
     pushd $REPO/My_Dockerfiles/db/postgres/
@@ -18,7 +17,6 @@ function db.down() {
 function db.init() {
     echo "Setting up ${FLASK_APP} as the Flask App"
     echo "Entering virtual environment"
-    source venv/bin/activate
     echo "Running the db init command"
     flask db init || flask db migrate
     echo "
@@ -40,7 +38,6 @@ function db.downgrade() {
 function flask.run() {
     echo "Setting up ${FLASK_APP} as the Flask App"
     echo "Entering virtual environment"
-    source venv/bin/activate
     echo "Opening localhost"
     open http://localhost:5000
     echo "Running ${FLASK_APP}, Press control+C to exit."
