@@ -217,3 +217,26 @@ def new_login():
             form.email.errors.append('This email already exists')
 
     return render_template('new_login.html', title='New kid alert!', form=form, footer='Welcome new person.')
+
+
+@app.route('/reset_password/<token>', methods=['GET', 'POST'])
+def reset_password(token):
+    """
+    Description
+    -----------
+    This function takes a token and returns the specific password
+    reset page for a particular user if they have forgotten or
+    lost their password.
+
+    Params
+    ------
+    :token: str
+    The string representation of a JSON web token.
+
+    Return
+    ------
+    Returns a rendered Jinja2 HTML template served
+    over the flask application under the
+    `/reset_password/<token>' path
+    """
+    return render_template('reset_password.html', header='Pick a new password since you forgot the other one.', footer='We all forget sometimes.')

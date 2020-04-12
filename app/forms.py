@@ -15,6 +15,22 @@ from wtforms.validators import Email
 from wtforms.validators import EqualTo
 from wtforms.validators import Length
 
+PASSWORD_MUST_CONTAIN = textwrap.dedent("""\
+    Password must contain:
+    1 capital letter 'A-Z',
+    1 lowercase letter 'a-z',
+    1 number '0-9',
+    and 1 special character in the set '`~!@#$%^&()_+={}[]|\\?:;>.<,\"\'-*/'.""")
+
+PASSWORD_VALIDATORS = [
+    DataRequired(),
+    Regexp(r".*[A-Z].*", message=PASSWORD_MUST_CONTAIN + " missing capital letter"),
+    Regexp(r".*[a-z].*", message=PASSWORD_MUST_CONTAIN + " missing lowercase letter"),
+    Regexp(r".*[0-9].*", message=PASSWORD_MUST_CONTAIN + " missing number"),
+    Regexp(r".*[`~!@#$%^&()_+={}\[\]|\\?:;>.<,\'\"\-\*\/].*", message=PASSWORD_MUST_CONTAIN + " missing special character"),
+    Length(min=8, max=128, message="Please enter a password between 8 and 128 characters")
+]
+
 class LoginForm(FlaskForm):
     """
     Description
@@ -36,7 +52,7 @@ class LoginForm(FlaskForm):
     Inherits methods from `flask_wtf.FlaskForm'
     """
     username = StringField('Username', validators=[DataRequired()])
-    password = PasswordField('Password', validators=[DataRequired()])
+    password = PasswordField('Password', validators=PASSWORD_VALIDATORS)
     remember_me = BooleanField('Remember Me')
     submit = SubmitField('Sign In')
 
@@ -62,13 +78,7 @@ class NewLoginForm(FlaskForm):
     -------
     Inherits methods from `flask_wtf.FlaskForm'
     """
-    password_must_contain = textwrap.dedent("""
-    Password must contain:
-    1 capital letter 'A-Z',
-    1 lowercase letter 'a-z',
-    1 number '0-9',
-    and 1 special character in the set '`~!@#$%^&()_+={}[]|\\?:;>.<,\"\'-*/'.
-    """)
+
     username = StringField(
         'Username',
         validators=[
@@ -79,17 +89,7 @@ class NewLoginForm(FlaskForm):
             )
         ]
     )
-    password = PasswordField(
-        'Password',
-        validators=[
-            DataRequired(),
-            Regexp(r".*[A-Z].*", message=password_must_contain + " missing capital letter"),
-            Regexp(r".*[a-z].*", message=password_must_contain + " missing lowercase letter"),
-            Regexp(r".*[0-9].*", message=password_must_contain + " missing number"),
-            Regexp(r".*[`~!@#$%^&()_+={}\[\]|\\?:;>.<,\'\"\-\*\/].*", message=password_must_contain + " missing special character"),
-            Length(min=8, max=128, message="Please enter a password between 8 and 128 characters")
-        ]
-    )
+    password = PasswordField('Password', validators=PASSWORD_VALIDATORS)
     confirm_password = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('password', message="Confirm Password must match Password")])
     email = StringField('Email', validators=[DataRequired(), Email(message=u"That does not look like an email \U0001F622")])
     submit = SubmitField('Submit')
