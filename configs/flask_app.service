@@ -1,0 +1,16 @@
+[Unit]
+Description=Unicorn Daemon for flask_app
+After=network.target
+
+[Service]
+User=flask_user
+Group=www-data
+WorkingDirectory=/home/flask_user/flask_app
+ExecStart=/usr/local/bin/gunicorn --workers 1 --bind unix:/tmp/flask_app.sock controller:app
+
+ExecReload=/bin/kill -s HUP $MAINPID
+ExecStop=/bin/kill -s TERM $MAINPID
+
+
+[Install]
+WantedBy=multi-user.target
