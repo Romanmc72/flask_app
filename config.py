@@ -17,3 +17,9 @@ class Config(object):
     SECRET_KEY = os.getenv('SECRET_KEY', 'oooh_what_is_it?')
     SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URI', 'postgresql+psycopg2://flask:not_the_password@localhost:5432/flask_db')
     SQLALCHEMY_TRACK_MODIFCATION = False
+    MAIL_SERVER = os.getenv('MAIL_SERVER', 'localhost')
+    MAIL_PORT = int(os.getenv('MAIL_PORT', 8025))
+    MAIL_USE_TLS = os.environ.get('MAIL_USE_TLS') is not None
+    MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
+    MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
+    ADMINS = [os.getenv('ADMIN_EMAIL', 'admin@r0m4n.com')]

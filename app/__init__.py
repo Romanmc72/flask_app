@@ -23,3 +23,4 @@ mail = Mail(app)
 from app import routes
 from app import models
 from app import forms
+from app import errors

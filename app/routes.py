@@ -19,7 +19,10 @@ from app import app
 from app import db
 from app.forms import LoginForm
 from app.forms import NewLoginForm
+from app.forms import PasswordResetRequestForm
+from app.forms import PasswordResetForm
 from app.models import User
+from app.email import send_password_reset_email
 
 
 @app.route('/')
@@ -71,7 +74,6 @@ def login() -> render_template:
     returns a rendered Jinja2 HTML template to be served
     over the flask application under the `/login' path
     """
-
     # flask_login stores the concept of a current user
     # if the user is logged in, this will redirect to
     # the home page
@@ -98,7 +100,7 @@ def login() -> render_template:
         # (user is non None and password is not invalid)
         # go back to home page
         login_user(user, remember=form.remember_me.data)
-        
+
         # If the user was directed to the login from another page,
         # this will either retun them to page that they came from
         # or will default them back to /index
@@ -109,7 +111,12 @@ def login() -> render_template:
 
     # Otherwise stay here on the login page
     # and wait for the form submission
-    return render_template("login.html", title='Login', form=form, footer="Log in, if you're new click 'I am new here'")
+    return render_template(
+        "login.html",
+        title='Login',
+        form=form,
+        footer="Log in, if you're new click 'I am new here'"
+    )
 
 
 @app.route('/logout')
@@ -219,6 +226,41 @@ def new_login():
     return render_template('new_login.html', title='New kid alert!', form=form, footer='Welcome new person.')
 
 
+@app.route('/reset_password_request', methods=['GET', 'POST'])
+def reset_password_request():
+    """
+    Description
+    -----------
+    This function takes the user to the web page
+    where they can initiate a password reset request.
+
+    Params
+    ------
+    None
+
+    Return
+    ------
+    Returns a rendered Jinja2 HTML template served
+    over the flask application under the
+    `/reset_password/<token>' path
+    """
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+    form = PasswordResetRequestForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=form.email.data.lower()).first()
+        if user:
+            send_password_reset_email(user)
+            flash('A password reset has been sent to that email if a profile exists.')
+        return redirect(url_for('login'))
+    return render_template(
+        'reset_password_request.html',
+        form=form,
+        header='Well get on it then!',
+        footer='Once you submit there will only be 10 minutes to reset you password. Good Luck!'
+    )
+
+
 @app.route('/reset_password/<token>', methods=['GET', 'POST'])
 def reset_password(token):
     """
@@ -239,4 +281,21 @@ def reset_password(token):
     over the flask application under the
     `/reset_password/<token>' path
     """
-    return render_template('reset_password.html', header='Pick a new password since you forgot the other one.', footer='We all forget sometimes.')
+    reroute = redirect(url_for('index'))
+    if current_user.is_authenticated:
+        return reroute
+    user = User.verify_password_reset_token(token)
+    if not user:
+        return reroute
+    form = PasswordResetForm()
+    if form.validate_on_submit():
+        user.set_password(form.password.data)
+        db.session.commit()
+        flash('Your password has been successfully reset.')
+        return redirect(url_for('login'))
+    return render_template(
+        'reset_password.html',
+        form=form,
+        header='Pick a new password since you forgot the other one.',
+        footer='We all forget sometimes.'
+    )

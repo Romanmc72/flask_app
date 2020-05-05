@@ -31,6 +31,20 @@ PASSWORD_VALIDATORS = [
     Length(min=8, max=128, message="Please enter a password between 8 and 128 characters")
 ]
 
+# This assumes that the variable for the password
+# (to which this confirmation is being compared)
+# is named 'password'
+CONFRIM_PASSWORD_VALIDATORS = [
+    DataRequired(),
+    EqualTo(
+        'password',
+        message="Confirm Password must match Password"
+    )
+]
+
+EMAIL_VALIDATORS = [DataRequired(), Email(message=u"That does not look like an email \U0001F622")]
+
+
 class LoginForm(FlaskForm):
     """
     Description
@@ -46,7 +60,7 @@ class LoginForm(FlaskForm):
     Params
     ------
     None
-    
+
     Methods
     -------
     Inherits methods from `flask_wtf.FlaskForm'
@@ -73,7 +87,7 @@ class NewLoginForm(FlaskForm):
     Params
     ------
     None
-    
+
     Methods
     -------
     Inherits methods from `flask_wtf.FlaskForm'
@@ -90,6 +104,30 @@ class NewLoginForm(FlaskForm):
         ]
     )
     password = PasswordField('Password', validators=PASSWORD_VALIDATORS)
-    confirm_password = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('password', message="Confirm Password must match Password")])
-    email = StringField('Email', validators=[DataRequired(), Email(message=u"That does not look like an email \U0001F622")])
+    confirm_password = PasswordField('Confirm Password', validators=CONFRIM_PASSWORD_VALIDATORS)
+    email = StringField('Email', validators=EMAIL_VALIDATORS)
     submit = SubmitField('Submit')
+
+
+class PasswordResetRequestForm(FlaskForm):
+    """
+    Description
+    -----------
+    Everybody forgets their password sometimes. If the user forgets theirs
+    then this form just takes their email address as input and lets the
+    password reset page use it to send a password reset email.
+    """
+    email = StringField('Email', validators=EMAIL_VALIDATORS)
+    submit = SubmitField('Submit')
+
+
+class PasswordResetForm(FlaskForm):
+    """
+    Description
+    -----------
+    This form takes and returns the password reset information form the password resest form.
+    This will be a validated and unique new password for the user.
+    """
+    password = PasswordField('Password', validators=PASSWORD_VALIDATORS)
+    confirm_password = PasswordField('Confirm Password', validators=CONFRIM_PASSWORD_VALIDATORS)
+    submit = SubmitField('Reset My Password')
