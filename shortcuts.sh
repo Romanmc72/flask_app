@@ -18,7 +18,7 @@ function db.init() {
     echo "Setting up ${FLASK_APP} as the Flask App"
     echo "Entering virtual environment"
     echo "Running the db init command"
-    flask db init || flask db migrate
+    flask db init || flask db migrate || \
     echo "
     bye!"
 }
