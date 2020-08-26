@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <!-- This is the navigation bar -->
-    <div>Roman's site
+    <div class="top_bar">
         <a href="{{ url_for('index') }}">Home</a>
         {% if current_user.is_anonymous %}
             <a href="{{ url_for('login') }}">Login</a>
@@ -9,6 +9,7 @@
             <a href="{{ url_for('user', username=current_user.username) }}">My Profile</a>
             <a href="{{ url_for('logout') }}">Logout</a>
         {% endif %}
+        <a class="right">Roman's site</a>
     </div>
     <!-- This part appears on the browser tab -->
 	<head>
@@ -25,7 +26,7 @@
         {% if header %}
             <header>{{ header }}</header>
         {% else %}
-            <header>Apache Webserve hosted on RaspberryPi Model 3 B+</header>
+            <header>Kubernetes-based Webserver hosted on my own in-home cluster.</header>
         {% endif %}
         <!--
             If any messages are flashed throughout
@@ -58,7 +59,7 @@
         {% if footer %}
             <footer>{{ footer }}</footer>
         {% else %}
-            <footer>I will add more as I have more</footer>
+            <footer>I will add more as I have more.</footer>
         {% endif %}
 	</body>
 </html>
