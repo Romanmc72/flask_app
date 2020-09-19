@@ -15,8 +15,8 @@ class Config(object):
     # TODO DOCUMENT ME
     """
     SECRET_KEY = os.getenv('SECRET_KEY', 'oooh_what_is_it?')
-    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URI', 'postgresql+psycopg2://flask:not_the_password@localhost:5432/flask_db')
-    SQLALCHEMY_TRACK_MODIFCATION = False
+    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URI', 'postgresql+psycopg2://flask:not_the_password@0.0.0.0:5432/flask_db')
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
     MAIL_SERVER = os.getenv('MAIL_SERVER', 'localhost')
     MAIL_PORT = int(os.getenv('MAIL_PORT', 8025))
     MAIL_USE_TLS = os.environ.get('MAIL_USE_TLS') is not None
