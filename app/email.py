@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-This file exists to handle any outbound emails from this application to the users of the applicaction
+This file exists to handle any outbound emails from this application to the users of the application
 """
 from threading import Thread
 
@@ -47,7 +47,7 @@ def compose_email_message(
     Description
     -----------
     This method lets me compose a flask mail message without needing to send it,
-    so that there is a uniform way to compse the message without forcing me also
+    so that there is a uniform way to compose the message without forcing me also
     to send the message in the same function and the same way every time.
 
     Params
@@ -154,7 +154,7 @@ def send_password_reset_email(user) -> None:
     Return
     ------
     None
-    This jsut sends an email.
+    This just sends an email.
     """
     token = user.get_password_reset_token()
     send_email(

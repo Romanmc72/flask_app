@@ -34,3 +34,7 @@ def make_shell_context():
     None
     """
     return {'db': db, 'User': User}
+
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0")
