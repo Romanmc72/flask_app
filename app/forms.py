@@ -131,3 +131,13 @@ class PasswordResetForm(FlaskForm):
     password = PasswordField('Password', validators=PASSWORD_VALIDATORS)
     confirm_password = PasswordField('Confirm Password', validators=CONFRIM_PASSWORD_VALIDATORS)
     submit = SubmitField('Reset My Password')
+
+
+class GarageDoorOpener(FlaskForm):
+    """
+    Description
+    -----------
+    This form is simply a submit button for opening and closing my garage door
+    at home.
+    """
+    submit = SubmitField('GARAGE DOOR BUTTON')
