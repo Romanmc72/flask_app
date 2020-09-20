@@ -33,6 +33,12 @@ def make_shell_context():
     ------
     None
     """
+    # To add a new user, run this in the shell:
+    # >>> new_user = User(username="username", email="email")
+    # >>> new_user.set_password("password")
+    # >>> db.session.add(new_user)
+    # >>> db.session.commit()
+    # And as long as that is a new user and email then it will succeed.
     return {'db': db, 'User': User}
 
 
