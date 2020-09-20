@@ -23,3 +23,6 @@ class Config(object):
     MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
     ADMINS = [os.getenv('ADMIN_EMAIL', 'admin@r0m4n.com')]
+    GARAGE_DOOR_USERNAME = os.environ.get('GARAGE_DOOR_USERNAME', 'root')
+    GARAGE_DOOR_PASSWORD = os.environ.get('GARAGE_DOOR_PASSWORD', 'example')
+    GARAGE_DOOR_HOSTNAME = os.environ.get('GARAGE_DOOR_HOSTNAME', '0.0.0.0')

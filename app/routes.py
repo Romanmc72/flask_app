@@ -9,6 +9,7 @@ from flask import redirect
 from flask import render_template
 from flask import request
 from flask import url_for
+from flask import current_app
 from flask_login import current_user
 from flask_login import login_required
 from flask_login import login_user
@@ -16,13 +17,10 @@ from flask_login import logout_user
 from werkzeug.urls import url_parse
 
 from app import app
-from app import db
 from app.forms import LoginForm
-from app.forms import NewLoginForm
-from app.forms import PasswordResetRequestForm
-from app.forms import PasswordResetForm
+from app.forms import GarageDoorOpener
 from app.models import User
-from app.email import send_password_reset_email
+from app.remote_control import execute_remote_command
 
 
 @app.route('/')
@@ -115,7 +113,7 @@ def login() -> render_template:
         "login.html",
         title='Login',
         form=form,
-        footer="Log in, if you're new click 'I am new here'"
+        footer="We are not accepting new applications at this time."
     )
 
 
@@ -142,7 +140,7 @@ def logout() -> render_template:
     return redirect(url_for('index'))
 
 
-@app.route('/user/<username>')
+@app.route('/user/<username>', methods=['GET', 'POST'])
 @login_required
 def user(username: str) -> render_template:
     """
@@ -163,139 +161,17 @@ def user(username: str) -> render_template:
     `/user/<username>' path, depending on the username
     """
     user = User.query.filter_by(username=username).first_or_404()
-    return render_template('user.html', user=user)
+    form = GarageDoorOpener()
 
-
-@app.route('/new_login', methods=['GET', 'POST'])
-def new_login():
-    """
-    Description
-    -----------
-    This function opens up a new user log
-    in page for users who have not previously
-    logged into the app
-
-    Params
-    ------
-    None
-
-    Return
-    ------
-    Returns a rendered Jinja2 HTML template served
-    over the flask application under the
-    `/new_login' path
-    """
-
-    # If a user that is already logged in
-    # somehow gets here, they'll get sent
-    # back to the home page
-    if current_user.is_authenticated:
-        redirect(url_for('index'))
-
-    # Upon submission of the form,
-    # everything should be validated,
-    # once that is done, if all things
-    # pass validly then the user will
-    # be sent to the next page home page
-    form = NewLoginForm()
     if form.validate_on_submit():
+        flash("[ Running the garage door, give it a second... ]")
+        details = execute_remote_command(
+            command="python2 /usr/src/RPiGPIO/app/garage_door.py --pin=14",
+            username=current_app.config['GARAGE_DOOR_USERNAME'],
+            password=current_app.config['GARAGE_DOOR_PASSWORD'],
+            hostname=current_app.config['GARAGE_DOOR_HOSTNAME']
+        )
+        for detail in details:
+            flash(detail)
 
-        # Just make sure they don't already exist
-        # via either the email or the username
-        user = User.query.filter_by(username=form.username.data).first()
-        email = User.query.filter_by(email=form.email.data.lower()).first()
-        if not user and not email:
-
-            # Instantiate the new user and add them to the database
-            new_user = User(username=form.username.data, email=form.email.data.lower())
-            new_user.set_password(form.password.data)
-            db.session.add(new_user)
-            db.session.commit()
-            login_user(new_user, remember=True)
-
-            # Then return to the home page.
-            return redirect(url_for('index'))
-        elif user and email:
-            form.username.errors.append('This username already exists')
-            form.email.errors.append('This email already exists')
-        elif user:
-            form.username.errors.append('This username already exists')
-        elif email:
-            form.email.errors.append('This email already exists')
-
-    return render_template('new_login.html', title='New kid alert!', form=form, footer='Welcome new person.')
-
-
-@app.route('/reset_password_request', methods=['GET', 'POST'])
-def reset_password_request():
-    """
-    Description
-    -----------
-    This function takes the user to the web page
-    where they can initiate a password reset request.
-
-    Params
-    ------
-    None
-
-    Return
-    ------
-    Returns a rendered Jinja2 HTML template served
-    over the flask application under the
-    `/reset_password/<token>' path
-    """
-    if current_user.is_authenticated:
-        return redirect(url_for('index'))
-    form = PasswordResetRequestForm()
-    if form.validate_on_submit():
-        user = User.query.filter_by(email=form.email.data.lower()).first()
-        if user:
-            send_password_reset_email(user)
-            flash('A password reset has been sent to that email if a profile exists.')
-        return redirect(url_for('login'))
-    return render_template(
-        'reset_password_request.html',
-        form=form,
-        header='Well get on it then!',
-        footer='Once you submit there will only be 10 minutes to reset you password. Good Luck!'
-    )
-
-
-@app.route('/reset_password/<token>', methods=['GET', 'POST'])
-def reset_password(token):
-    """
-    Description
-    -----------
-    This function takes a token and returns the specific password
-    reset page for a particular user if they have forgotten or
-    lost their password.
-
-    Params
-    ------
-    :token: str
-    The string representation of a JSON web token.
-
-    Return
-    ------
-    Returns a rendered Jinja2 HTML template served
-    over the flask application under the
-    `/reset_password/<token>' path
-    """
-    reroute = redirect(url_for('index'))
-    if current_user.is_authenticated:
-        return reroute
-    user = User.verify_password_reset_token(token)
-    if not user:
-        return reroute
-    form = PasswordResetForm()
-    if form.validate_on_submit():
-        user.set_password(form.password.data)
-        db.session.commit()
-        flash('Your password has been successfully reset.')
-        return redirect(url_for('login'))
-    return render_template(
-        'reset_password.html',
-        form=form,
-        header='Pick a new password since you forgot the other one.',
-        footer='We all forget sometimes.'
-    )
+    return render_template('user.html', user=user, form=form)

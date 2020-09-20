@@ -12,5 +12,10 @@
     <p>
         <a href="https://giphy.com/gifs/forum-image-react-Hcw7rjsIsHcmk">via GIPHY</a>
     </p>
-    <p>I would like to <a href="{{ url_for('reset_password_request') }}">RESET MY PASSWORD</a></p>
+
+    <p>Oh I almost forgot! I have a garage door opener I am trying to test out right now. See if it works.</p>
+    <form action="" method="post" novalidate>
+        {{ form.hidden_tag() }}
+        <p>{{ form.submit() }}</p>
+    </form>
 {% endblock %}

@@ -4,7 +4,7 @@ FLASK_APP=./flask_app.py
 
 function db.up() {
     pushd $REPO/My_Dockerfiles/db/postgres/
-    ./up.sh
+    ./up.sh 9000
     popd
 }
 
