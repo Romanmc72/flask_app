@@ -25,7 +25,6 @@ from app.remote_control import execute_remote_command
 
 @app.route('/')
 @app.route('/index')
-@login_required
 def index() -> render_template:
     """
     Description
@@ -44,7 +43,7 @@ def index() -> render_template:
     """
     list_of_things = [
         'What is new at work?',
-        'What are you doing in Docker?',
+        'What kinds of projects are you working on?',
         'What was the last thing you coded for fun?',
         'What other non-coding things do I do with my computer?',
     ]
