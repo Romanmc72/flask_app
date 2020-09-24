@@ -6,7 +6,7 @@
         {% if current_user.is_anonymous %}
             <a href="{{ url_for('login') }}">Login</a>
         {% else %}
-            <a href="{{ url_for('user', username=current_user.username) }}">My Profile</a>
+            <a href="{{ url_for('user', username=current_user.username) }}">Secret Page</a>
             <a href="{{ url_for('logout') }}">Logout</a>
         {% endif %}
         <a class="right">Roman's site</a>
@@ -26,7 +26,7 @@
         {% if header %}
             <header>{{ header }}</header>
         {% else %}
-            <header>Kubernetes-based Webserver hosted on my own in-home cluster.</header>
+            <header><a href="https://kubernetes.io/docs/concepts/overview/what-is-kubernetes/">Kubernetes</a>-based Webserver hosted on my own in-home cluster.</header>
         {% endif %}
         <!--
             If any messages are flashed throughout

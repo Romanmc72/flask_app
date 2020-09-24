@@ -3,11 +3,15 @@
 {% block content %}
 <section>
 <h1>
+    {% if current_user.is_anonymous %}
+    Hello there random traveler!
+    I am learning <a href="https://flask.palletsprojects.com/en/1.1.x/">Flask</a>.
+    {% else %}
     Hey {{ current_user.username }},
-        I am Learning Flask
+    {% endif %}
 </h1>
 
-    <p>Ask me what other fun things I am learning or working on.</p>
+    <p>Ask me what other fun things I am learning or working on. Such as...</p>
 
     {% if list_of_things %}
         {% for element in list_of_things %}
@@ -19,7 +23,7 @@
 
     <p>
         Learn to build websites in Python's Flask library through
-        <a href="https://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-i-hello-world"> this comprehensive tutorial </a>
+        <a href="https://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-i-hello-world">this comprehensive tutorial</a>
         by Miguel Grinberg.
     </p>
 <h2>I started a store on <a href="https://littlebits.threadless.com">threadless.com</a>!</h2>
