@@ -8,92 +8,58 @@ thx bruh.
 
 # Production
 ## Initial Setup
-### Raspberry Pi
-So for this application I wanted to make it generalizeable enough to be deployed on either my raspberry pi server at home, or via a kubernetes setup. So a lot of these shell scripts are explicitly geared towards making dev/tes easier for locally testing the flask dev server, but for production I plan to launch it on nginx with gunicorn and a postgres backend.
+### Debian 10.5 & Kubernetes 1.19.0
+This portion of the README is dedicated to showing how I set up my debain box to make it run in production. The other part is dedicated to actually deploying the application in either local (meaning on your laptop) or production.
 
-**User**
-Create the flask user (instead of running everything under the root)
-```bash
-groupadd -r flask_user
-useradd --shell /bin/bash --no-log-init --create-home -r -g flask_user flask_user
-```
-Clone this repo into that user's home directory, and change ownership to the flask user.
-```bash
-cd /home/flask_user
-git clone git@github.com:Romanmc72/flask_app.git
-sudo chown -r flask_user:flask_user flask_app
-```
+## Developing, Testing, And Deploying on Kubernetes
+### Local Development Setup
+I started with testing on `docker-compose` then moved to `minikube`. Check out the dockerfiles [here](https://github.com/Romanmc72/My_Dockerfiles/tree/master/webserver/flask) for the flask application and [here](https://github.com/Romanmc72/My_Dockerfiles/tree/master/db/postgres/images) for the database.
 
-**Installing**
-Some steps I took to get the raspberry pi set up:
-Make sure apache is not installed or running, then install nginx:
-[Thanks to](https://gist.github.com/kizniche/5cea47b44cc1bfd15da837a1b634b9a5)
+For running the whole stack in minikube, step 1 is download minikube. Minikube is essentially a single node kubernetes cluster that runs on your laptop. Great for testing kubernetes applications locally. Learn more on that [here](https://kubernetes.io/docs/setup/learning-environment/minikube/#:~:text=Minikube%20is%20a%20tool%20that,it%20day%2Dto%2Dday.) (or don't idgaf). If you have a mac (which I do) use homebrew to install minikube with ease via:
+
 ```bash
-sudo apt-get update && sudo apt-get upgrade
-sudo apt-get remove nginx* --purge
-sudo /etc/init.d/apache2 stop
-sudo apt-get remove apache* --purge
-sudo apt-get install nginx-common
-sudo apt-get install nginx
+brew install minikube
 ```
-I then installed postgres
-[Thanks to](https://opensource.com/article/17/10/set-postgres-database-your-raspberry-pi)
+(If you do not have a Mac, first off I am sorry. Secondly there are other ways to install it. Use your google powers to figure it out)
+
+Then start minikube with:
+
 ```bash
-sudo apt install postgresql libpq-dev postgresql-client postgresql-client-common -y
-```
-Then we have to install all of the python things. For this I logged out then logged back in as the new flask_user.
-```bash
-cd flask_app
-pip install --user -r requirements.txt
+minikube start
 ```
 
-**Databse setup**
-Signed out from the flask_user and came back as someone with root privileges then switched to the postgres superuser and created a flask_user for the db without superuser permissions. (make sure you remember the password for the database access, you will need it later)
+After this it is essential that you create a folder in the minikube node under `/var/lib/postgresql/data`. You can do that like this:
+
 ```bash
-sudo su postgres
-createuser flask_user -P --interactive
-Enter password for new role: 
-Enter it again: 
-Shall the new role be a superuser? (y/n) n
-Shall the new role be allowed to create databases? (y/n) y
-Shall the new role be allowed to create more new roles? (y/n) y
-```
-Then created the database and schema for the app and assigned the schema to the user.
-```bash
-psql
-postgres=# CREATE DATABASE flask_db;
-CREATE DATABASE
-postgres=# \q
-psql flask_db
-flask_db=# CREATE SCHEMA flask_app AUTHORIZATION flask_user;
-CREATE SCHEMA
-flask_db=# SELECT * FROM INFORMATION_SCHEMA.SCHEMATA;
- catalog_name |    schema_name     | schema_owner | default_character_set_catalog | default_character_set_schema | default_character_set_name | sql_path 
---------------+--------------------+--------------+-------------------------------+------------------------------+----------------------------+----------
- flask_db     | pg_toast           | postgres     |                               |                              |                            | 
- flask_db     | pg_temp_1          | postgres     |                               |                              |                            | 
- flask_db     | pg_toast_temp_1    | postgres     |                               |                              |                            | 
- flask_db     | pg_catalog         | postgres     |                               |                              |                            | 
- flask_db     | public             | postgres     |                               |                              |                            | 
- flask_db     | information_schema | postgres     |                               |                              |                            | 
- flask_db     | flask_app          | flask_user   |                               |                              |                            | 
-(7 rows)
-flask_db=# \q
-exit
+$ minikube ssh
+                         _             _            
+            _         _ ( )           ( )           
+  ___ ___  (_)  ___  (_)| |/')  _   _ | |_      __  
+/' _ ` _ `\| |/' _ `\| || , <  ( ) ( )| '_`\  /'__`\
+| ( ) ( ) || || ( ) || || |\`\ | (_) || |_) )(  ___/
+(_) (_) (_)(_)(_) (_)(_)(_) (_)`\___/'(_,__/'`\____)
+
+$ sudo mkdir -p /var/lib/postgresql/data
+$ exit
 ```
 
-**NGINX Setup**
-I am a total nginx n00b, so I tried to stick really closely to [what was laid out here](https://gist.github.com/kizniche/5cea47b44cc1bfd15da837a1b634b9a5) (same link as before) with a little copy and paste magic.
+And likewise that you clone this repo and mount it to minikube like so:
 
-**GUnicorn Setup**
-Likewise here I have no idea what I am actually doing, so I stuck to the gunicorn install into the pip requirements file, so if that all ran fine you should be able to run gunicorn.
+```
+minikube mount /wherever/you/downloaded/this/to/locally/flask_app:/host/flask_app
+📁  Mounting host path /wherever/you/downloaded/this/to/locally/flask_app into VM as /host/flask_app ...
+    ▪ Mount type:   <no value>
+    ▪ User ID:      docker
+    ▪ Group ID:     docker
+    ▪ Version:      9p2000.L
+    ▪ Message Size: 262144
+    ▪ Permissions:  755 (-rwxr-xr-x)
+    ▪ Options:      map[]
+    ▪ Bind Address: 192.168.99.1:60307
+🚀  Userspace file server: ufs starting
+✅  Successfully mounted /wherever/you/downloaded/this/to/locally/flask_app to /host/flask_app
 
-## Deployments
-Not exactly cutting edge CICD here, but it does make my life easier to have some helpers and shortcuts to run for sending updates from this repo to the production server.
+📌  NOTE: This process must stay alive for the mount to be accessible ...
+```
 
-# TODO fill this in
-
-### Kubernetes
-I started with testing on `docker-compose` then moved to `minikube`. Check out the dockerfiles [here]()
-
-# TODO fill this in
+and then just let this run until you are done testing. Now finally you can use [helm](https://helm.sh/) to install the chart for this application onto the minikube cluster. Navigate to [My_Helm_Charts](https://github.com/Romanmc72/My_Helm_Charts/tree/master/flask_app) repo to see the readme on how to do that.
