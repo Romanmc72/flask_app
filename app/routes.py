@@ -5,6 +5,8 @@ different pages on the Flask site,
 and how those html templates are populated.
 """
 from datetime import datetime
+import json
+import base64
 
 from flask import flash
 from flask import redirect
@@ -12,6 +14,7 @@ from flask import render_template
 from flask import request
 from flask import url_for
 from flask import current_app
+from flask import Response
 from flask_login import current_user
 from flask_login import login_required
 from flask_login import login_user
@@ -22,6 +25,7 @@ from app import app
 from app.forms import LoginForm
 from app.forms import GarageDoorApp
 from app.models import User
+from app.models import Score
 from app.remote_control import open_garage_door
 from app.remote_control import refresh_garage_door_picture
 
@@ -177,3 +181,46 @@ def user(username: str) -> render_template:
             refresh_garage_door_picture(current_app)
 
     return render_template('user.html', user=user, form=form, ts=int(datetime.utcnow().timestamp()))
+
+
+@app.route('/game')
+def game():
+    """Returns the webpage for the javascript based game."""
+    if current_user.is_authenticated:
+        username = current_user.username
+    else:
+        username = None
+
+    score = Score(username=username, score=0, token_used=False)
+    score.save()
+    high_score = score.get_high_score()
+
+    game_token = score.issue_web_token()
+
+    return render_template(
+        'game.html',
+        header=f"High Score: {high_score}",
+        token=game_token,
+        footer='I made this game using the <a href="https://phaser.io/tutorials/making-your-first-phaser-3-game/part1">PhaserJS</a> tutorial.'
+    )
+
+
+@app.route('/api/game/score/<game_token>', methods=['POST'])
+def api_game_score(game_token):
+    """Post a score from the game once the game is over to this endpoint to save it"""
+    token, score = base64.standard_b64decode(game_token).decode('utf-8').split(',')
+    game_instance = Score.verify_web_token(token)
+    if game_instance.token_used:
+        return Response(
+            json.dumps({'text': 'Permission Denied, score not updated.', 'score': score}),
+            status=403,
+            mimetype='application/json'
+        )
+    else:
+        game_score = int(score)
+        game_instance.update(score=game_score, token_used=True)
+        return Response(
+            json.dumps({'text': 'Score updated', 'score': game_score}),
+            status=200,
+            mimetype="application/json"
+        )
