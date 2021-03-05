@@ -190,7 +190,7 @@ function hitBomb (player, bomb)
 
     player.anims.play('turn');
 
-    axios.post('http://localhost:5000/api/game/score/' + btoa(gameID + ',' + score))
+    axios.post('http://r0m4n.com/api/game/score/' + btoa(gameID + ',' + score))
         .then(response => {
             console.log(response.data);
         })
