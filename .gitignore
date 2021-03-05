@@ -3,3 +3,4 @@
 *.vscode*
 *secrets.env*
 *.coverage
+app/static/garage/status.jpg

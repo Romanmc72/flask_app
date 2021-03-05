@@ -8,14 +8,19 @@
             It is great that you are here. Thank you for coming to this page. I made it just for you.
             I sincerely hope you enjoy your time here. As a reward, please enjoy this gif of a cat doing silly things.
     </p>
-    <iframe src="https://giphy.com/embed/Hcw7rjsIsHcmk" width="480" height="363" frameBorder="0" class="giphy-embed" allowFullScreen></iframe>
-    <p>
-        <a href="https://giphy.com/gifs/forum-image-react-Hcw7rjsIsHcmk">via GIPHY</a>
-    </p>
+    <!-- 
+        The ?lastmod=##### has no effect on the image, but it does ensure the
+        image gets refreshed every time by invalidating the cache, otherwise
+        your browser would not pull the image again if it thinks nothing
+        changed about that resource
+    -->
+    <iframe src="{{ url_for('static', filename='garage/status.jpg') }}?lastmod={{ ts }}" width="2592" height="1944" frameBorder="0"></iframe>
 
     <p>Oh I almost forgot! I have a garage door opener I am trying to test out right now. See if it works.</p>
     <form action="" method="post" novalidate>
         {{ form.hidden_tag() }}
+        <p>{{ form.open_garage_door() }} {{ form.open_garage_door.label }}</p>
+        <p>{{ form.status_picture() }} {{ form.status_picture.label }}</p>
         <p>{{ form.submit() }}</p>
     </form>
 {% endblock %}
