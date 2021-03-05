@@ -23,6 +23,96 @@ TOKEN_EXPIRE = 600
 ALGORITHM = 'HS256'
 
 
+class CRUDMixin(object):
+    __table_args__ = {'extend_existing': True}
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    @classmethod
+    def get_by_id(cls, id):
+        if any(
+            (isinstance(id, str) and id.isdigit(),
+             isinstance(id, (int, float))),
+        ):
+            return cls.query.get(int(id))
+        return None
+
+    @classmethod
+    def create(cls, **kwargs):
+        instance = cls(**kwargs)
+        return instance.save()
+
+    def update(self, commit=True, **kwargs):
+        for attr, value in kwargs.items():
+            setattr(self, attr, value)
+        return commit and self.save() or self
+
+    def save(self, commit=True):
+        db.session.add(self)
+        if commit:
+            db.session.commit()
+        return self
+
+    def delete(self, commit=True):
+        db.session.delete(self)
+        return commit and db.session.commit()
+
+
+class Score(CRUDMixin, db.Model):
+    """
+    Description
+    -----------
+    This saves the score for a particular game run and will likewise retrieve
+    the highest score if that ever changes.
+    """
+    __table_args__ = DEFAULT_SCHEMA
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(64))
+    score = db.Column(db.Integer, index=True)
+    token_used = db.Column(db.Boolean)
+
+    def __repr__(self):
+        """Returns a string representation of the score"""
+        return f"<Score: {self.score}>"
+
+    def get_high_score(self):
+        """Returns the highest score from the Score table or 0 if there are no scores yet"""
+        query = db.session.query(db.func.max(Score.score))
+        result = db.session.execute(query).scalar()
+        if result:
+            return result
+        else:
+            return 0
+
+    def issue_web_token(self, expires_in: int = 60 * 60):
+        """
+        Issues a json web token for the user to authenticate requests.
+        There is really no way to prevent someone from hacking the high score
+        list but this is an attempt to obfuscate some of the API details.
+
+        By default the tokens will expire in 1 hour. Feel free to override
+        that with the number of seconds that feels right to you.
+        """
+        return jwt.encode(
+            {'id': self.id, 'exp': time() + expires_in},
+            app.config['SECRET_KEY'],
+            algorithm=ALGORITHM
+        ).decode('utf-8')
+
+    @staticmethod
+    def verify_web_token(token):
+        """Decodes the json web tokens that were issued for submitting score changes."""
+        try:
+            id = jwt.decode(
+                token,
+                app.config['SECRET_KEY'],
+                algorithms=[ALGORITHM]
+            )['id']
+        except DecodeError or InvalidTokenError or InvalidSignatureError or ExpiredSignatureError:
+            return None
+        return Score.get_by_id(id)
+
+
 class User(UserMixin, db.Model):
     """
     Description
