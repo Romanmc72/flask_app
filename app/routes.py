@@ -4,6 +4,8 @@ This file contains the various routes to
 different pages on the Flask site,
 and how those html templates are populated.
 """
+from datetime import datetime
+
 from flask import flash
 from flask import redirect
 from flask import render_template
@@ -18,9 +20,10 @@ from werkzeug.urls import url_parse
 
 from app import app
 from app.forms import LoginForm
-from app.forms import GarageDoorOpener
+from app.forms import GarageDoorApp
 from app.models import User
-from app.remote_control import execute_remote_command
+from app.remote_control import open_garage_door
+from app.remote_control import refresh_garage_door_picture
 
 
 @app.route('/')
@@ -160,17 +163,17 @@ def user(username: str) -> render_template:
     `/user/<username>' path, depending on the username
     """
     user = User.query.filter_by(username=username).first_or_404()
-    form = GarageDoorOpener()
+    form = GarageDoorApp()
 
     if form.validate_on_submit():
-        flash("[ Running the garage door, give it a second... ]")
-        details = execute_remote_command(
-            command="python2 /usr/src/RPiGPIO/app/garage_door.py --pin=14",
-            username=current_app.config['GARAGE_DOOR_USERNAME'],
-            password=current_app.config['GARAGE_DOOR_PASSWORD'],
-            hostname=current_app.config['GARAGE_DOOR_HOSTNAME']
-        )
-        for detail in details:
-            flash(detail)
+        if form.open_garage_door.data:
+            flash("[ Running the garage door app, give it a second... ]")
+            details = open_garage_door(current_app)
+            for detail in details:
+                flash(detail)
 
-    return render_template('user.html', user=user, form=form)
+        if form.status_picture.data:
+            flash("[ Refreshing the picture, this will take a second... ]")
+            refresh_garage_door_picture(current_app)
+
+    return render_template('user.html', user=user, form=form, ts=int(datetime.utcnow().timestamp()))

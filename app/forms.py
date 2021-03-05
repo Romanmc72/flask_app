@@ -133,11 +133,13 @@ class PasswordResetForm(FlaskForm):
     submit = SubmitField('Reset My Password')
 
 
-class GarageDoorOpener(FlaskForm):
+class GarageDoorApp(FlaskForm):
     """
     Description
     -----------
     This form is simply a submit button for opening and closing my garage door
     at home.
     """
-    submit = SubmitField('GARAGE DOOR BUTTON')
+    open_garage_door = BooleanField('Open Garage Door')
+    status_picture = BooleanField('Refresh Picture')
+    submit = SubmitField('RUN GARAGE DOOR APP!')
