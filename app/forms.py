@@ -143,4 +143,3 @@ class GarageDoorApp(FlaskForm):
     open_garage_door = BooleanField('Open Garage Door')
     status_picture = BooleanField('Refresh Picture')
     submit = SubmitField('RUN GARAGE DOOR APP!')
-
