@@ -4,12 +4,9 @@ This file contains the various routes to
 different pages on the Flask site,
 and how those html templates are populated.
 """
-<<<<<<< HEAD
 from datetime import datetime
-=======
 import json
 import base64
->>>>>>> dcb192c (got a working game! Still doing more doodles)
 
 from flask import flash
 from flask import redirect
@@ -28,13 +25,9 @@ from app import app
 from app.forms import LoginForm
 from app.forms import GarageDoorApp
 from app.models import User
-<<<<<<< HEAD
+from app.models import Score
 from app.remote_control import open_garage_door
 from app.remote_control import refresh_garage_door_picture
-=======
-from app.models import Score
-from app.remote_control import execute_remote_command
->>>>>>> dcb192c (got a working game! Still doing more doodles)
 
 
 @app.route('/')
