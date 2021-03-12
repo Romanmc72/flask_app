@@ -14,6 +14,7 @@ class Config(object):
     """
     # TODO DOCUMENT ME
     """
+    HOSTNAME = os.getenv('HOSTNAME', 'localhost:5000')
     SECRET_KEY = os.getenv('SECRET_KEY', 'oooh_what_is_it?')
     SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URI', 'postgresql+psycopg2://flask:not_the_password@0.0.0.0:5432/flask_db')
     SQLALCHEMY_TRACK_MODIFICATIONS = False

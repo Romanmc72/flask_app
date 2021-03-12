@@ -1,26 +1,45 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h1>User: {{ user.username }}</h1>
+
+<h1>User: {{ user.username }}</h1>
     <p>
         Hello {{ user.username }},
 
-            Use this page to manage my in-home automation hacks. Check it out!
-            (The garage door app is slow so give it some time before hitting the button again)
+            Use this page to check your personal stats. Play more of the game to boost your stats!
     </p>
-    <!-- 
-        The ?lastmod=##### has no effect on the image, but it does ensure the
-        image gets refreshed every time by invalidating the cache, otherwise
-        your browser would not pull the image again if it thinks nothing
-        changed about that resource
-    -->
-    <iframe src="{{ url_for('static', filename='garage/status.jpg') }}?lastmod={{ ts }}" width="2592" height="1944" frameBorder="0"></iframe>
 
-    <p>Oh I almost forgot! I have a garage door opener I am trying to test out right now. See if it works.</p>
-    <form action="" method="post" novalidate>
-        {{ form.hidden_tag() }}
-        <p>{{ form.open_garage_door() }} {{ form.open_garage_door.label }}</p>
-        <p>{{ form.status_picture() }} {{ form.status_picture.label }}</p>
-        <p>{{ form.submit() }}</p>
-    </form>
+<div class="row">
+    <div class="column">
+        <h2>Here are your 10 best scores</h1>
+        <table class="scoreboard">
+            <tr>
+                <th>Points</th>
+                <th>Date</th>
+            </tr>
+            {% for score in scores %}
+            <tr>
+                <td>{{ score.score }}</td>
+                <td class="utcdate">{{ score.date }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+    <div class="column">
+        <h2>Here are your overall stats</h1>
+        <table class="scoreboard">
+            <tr>
+                <th>Average Score</th>
+                <th>Total Seconds Played</th>
+                <th>Games Played</th>
+            </tr>
+            <tr>
+                <td>{{ stats.average_score }}</td>
+                <td>{{ stats.seconds_played }}</td>
+                <td>{{ stats.games_played }}</td>
+            </tr>
+        </table>
+    </div>
+</div>
+
 {% endblock %}
