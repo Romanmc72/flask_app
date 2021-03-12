@@ -115,13 +115,13 @@ class Score(CRUDMixin, db.Model):
         return Score.get_by_id(id)
 
     @staticmethod
-    def get_user_best_scores(username, best_n = 10):
+    def get_user_best_scores(username: str, best_n: int = 10) -> list:
         """Get the top 10 scores for a given user"""
         sql_stmt = db.text("""
-            SELECT 
+            SELECT
                 score
                 , last_modified_at AS date
-            FROM 
+            FROM
                 flask_app.score
             WHERE
                 username = :username
@@ -129,20 +129,19 @@ class Score(CRUDMixin, db.Model):
             ORDER BY
                 score DESC
                 , last_modified_at DESC
-            LIMIT :n;"""
-        )
+            LIMIT :n;""")
         results = db.engine.execute(sql_stmt, {'username': username, 'n': best_n})
         return [{'score': record[0], 'date': record[1]} for record in results]
 
     @staticmethod
-    def get_user_stats(username):
+    def get_user_stats(username: str) -> dict:
         """Get some stats on the average performance of a given username"""
         sql_stmt = db.text("""
-            SELECT 
+            SELECT
                 AVG(score) AS avg_score
                 , SUM(last_modified_at - created_at) AS seconds_played
                 , COUNT(*) AS games_played
-            FROM 
+            FROM
                 flask_app.score
             WHERE
                 username = :username
@@ -150,24 +149,22 @@ class Score(CRUDMixin, db.Model):
         results = db.engine.execute(sql_stmt, {'username': username}).first()
         return {'average_score': float(results[0]), 'seconds_played': float(results[1]), 'games_played': results[2]}
 
-
     @staticmethod
-    def get_best_scores(best_n = 10):
+    def get_best_scores(best_n: int = 10) -> list:
         """Get the top 10 scores for a given user"""
         sql_stmt = db.text("""
-            SELECT 
+            SELECT
                 username
                 , score
                 , last_modified_at AS date
-            FROM 
+            FROM
                 flask_app.score
             WHERE
                 token_used
             ORDER BY
                 score DESC
                 , last_modified_at DESC
-            LIMIT :n;"""
-        )
+            LIMIT :n;""")
         results = db.engine.execute(sql_stmt, {'n': best_n})
         return [{'username': record[0], 'score': record[1], 'date': record[2]} for record in results]
 

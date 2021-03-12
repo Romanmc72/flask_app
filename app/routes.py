@@ -358,6 +358,7 @@ def reset_password(token):
         footer='We all forget sometimes.'
     )
 
+
 @app.route('/game')
 def game():
     """Returns the webpage for the javascript based game."""
@@ -387,7 +388,6 @@ def game():
 @app.route('/api/game/score/<game_token>', methods=['POST'])
 def api_game_score(game_token):
     """Post a score from the game once the game is over to this endpoint to save it"""
-
 
     def check_score(score, game_start_timestamp):
         """
