@@ -19,7 +19,7 @@ def bad_request(error):
 
 
 @app.errorhandler(403)
-def not_found_error(error):
+def permission_denied_error(error):
     """
     Description
     -----------
