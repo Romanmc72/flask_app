@@ -147,7 +147,10 @@ class Score(CRUDMixin, db.Model):
                 username = :username
                 AND token_used""")
         results = db.engine.execute(sql_stmt, {'username': username}).first()
-        return {'average_score': float(results[0]), 'seconds_played': float(results[1]), 'games_played': results[2]}
+        if results[2] > 0:
+            return {'average_score': float(results[0]), 'seconds_played': float(results[1]), 'games_played': results[2]}
+        else:
+            return {'average_score': 0, 'seconds_played': 0, 'games_played': 0}
 
     @staticmethod
     def get_best_scores(best_n: int = 10) -> list:
