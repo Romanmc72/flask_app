@@ -169,7 +169,7 @@ class Score(CRUDMixin, db.Model):
                 , last_modified_at DESC
             LIMIT :n;""")
         results = db.engine.execute(sql_stmt, {'n': best_n})
-        return [{'username': record[0], 'score': record[1], 'date': record[2]} for record in results]
+        return [{'username': record[0] or 'anon', 'score': record[1], 'date': record[2]} for record in results]
 
 
 class User(UserMixin, db.Model):
