@@ -380,7 +380,6 @@ def game():
         header=f"Try and beat the high score!\n(use arrow keys to move and jump, reload the page to start over)",
         token=game_token,
         footer='I made this game using the <a href="https://phaser.io/tutorials/making-your-first-phaser-3-game/part1">PhaserJS</a> tutorial.',
-        hostname=current_app.config['HOSTNAME'],
         scores=top_scores
     )
 
