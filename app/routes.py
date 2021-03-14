@@ -381,7 +381,7 @@ def game():
 
     return render_template(
         'game.html',
-        header=f"Try and beat the high score!<br>use arrow keys to move and jump, reload the page to start over{header_extra}",
+        header=f"Try and beat the high score!<br>Use arrow keys to move and jump, reload the page to start over.{header_extra}",
         token=game_token,
         footer='I made this game using the <a href="https://phaser.io/tutorials/making-your-first-phaser-3-game/part1">PhaserJS</a> tutorial.',
         scores=top_scores
