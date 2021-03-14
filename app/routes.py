@@ -364,8 +364,12 @@ def game():
     """Returns the webpage for the javascript based game."""
     if not current_user.is_authenticated:
         username = None
+        login_url = url_for('login')
+        new_login_url = url_for('new_login')
+        header_extra = f"<br><a href={login_url}>Sign in</a> or <a href={new_login_url}>create a profile</a> to track your scores."
     else:
         username = current_user.username
+        header_extra = ""
 
     now = time()
     score = Score(username=username, score=0, token_used=False, created_at=now, last_modified_at=now)
@@ -377,7 +381,7 @@ def game():
 
     return render_template(
         'game.html',
-        header=f"Try and beat the high score!\n(use arrow keys to move and jump, reload the page to start over)",
+        header=f"Try and beat the high score!<br>use arrow keys to move and jump, reload the page to start over{header_extra}",
         token=game_token,
         footer='I made this game using the <a href="https://phaser.io/tutorials/making-your-first-phaser-3-game/part1">PhaserJS</a> tutorial.',
         scores=top_scores

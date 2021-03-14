@@ -30,7 +30,7 @@
 	<body>
         <!-- This part appears just below the navigation bar but before the big bold <h1> in the template -->
         {% if header %}
-            <header>{{ header }}</header>
+            <header>{{ header | safe }}</header>
         {% else %}
             <header><a href="https://kubernetes.io/docs/concepts/overview/what-is-kubernetes/">Kubernetes</a>-based Webserver hosted on my own in-home cluster.</header>
         {% endif %}
