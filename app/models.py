@@ -70,6 +70,8 @@ class Score(CRUDMixin, db.Model):
     username = db.Column(db.String(64))
     score = db.Column(db.Integer, index=True)
     token_used = db.Column(db.Boolean)
+    created_at = db.Column(db.Numeric(precision=16, scale=6))
+    last_modified_at = db.Column(db.Numeric(precision=16, scale=6))
 
     def __repr__(self):
         """Returns a string representation of the score"""
@@ -112,6 +114,63 @@ class Score(CRUDMixin, db.Model):
             return None
         return Score.get_by_id(id)
 
+    @staticmethod
+    def get_user_best_scores(username: str, best_n: int = 10) -> list:
+        """Get the top 10 scores for a given user"""
+        sql_stmt = db.text("""
+            SELECT
+                score
+                , last_modified_at AS date
+            FROM
+                flask_app.score
+            WHERE
+                username = :username
+                AND token_used
+            ORDER BY
+                score DESC
+                , last_modified_at DESC
+            LIMIT :n;""")
+        results = db.engine.execute(sql_stmt, {'username': username, 'n': best_n})
+        return [{'score': record[0], 'date': record[1]} for record in results]
+
+    @staticmethod
+    def get_user_stats(username: str) -> dict:
+        """Get some stats on the average performance of a given username"""
+        sql_stmt = db.text("""
+            SELECT
+                AVG(score) AS avg_score
+                , SUM(last_modified_at - created_at) AS seconds_played
+                , COUNT(*) AS games_played
+            FROM
+                flask_app.score
+            WHERE
+                username = :username
+                AND token_used""")
+        results = db.engine.execute(sql_stmt, {'username': username}).first()
+        if results[2] > 0:
+            return {'average_score': float(results[0]), 'seconds_played': float(results[1]), 'games_played': results[2]}
+        else:
+            return {'average_score': 0, 'seconds_played': 0, 'games_played': 0}
+
+    @staticmethod
+    def get_best_scores(best_n: int = 10) -> list:
+        """Get the top 10 scores for a given user"""
+        sql_stmt = db.text("""
+            SELECT
+                username
+                , score
+                , last_modified_at AS date
+            FROM
+                flask_app.score
+            WHERE
+                token_used
+            ORDER BY
+                score DESC
+                , last_modified_at DESC
+            LIMIT :n;""")
+        results = db.engine.execute(sql_stmt, {'n': best_n})
+        return [{'username': record[0] or 'anon', 'score': record[1], 'date': record[2]} for record in results]
+
 
 class User(UserMixin, db.Model):
     """
@@ -128,6 +187,9 @@ class User(UserMixin, db.Model):
     username = db.Column(db.String(64), index=True, unique=True)
     email = db.Column(db.String(120), index=True, unique=True)
     password_hash = db.Column(db.String(128))
+    role = db.Column(db.String(64))
+    created_at = db.Column(db.Numeric(precision=16, scale=6))
+    last_modified_at = db.Column(db.Numeric(precision=16, scale=6))
 
     def __repr__(self) -> str:
         """Returns a string representation of the User"""

@@ -20,5 +20,7 @@
         </p>
         <p>{{ form.remember_me() }} {{ form.remember_me.label }}</p>
         <p>{{ form.submit() }}</p>
+        <a href="{{ url_for('new_login') }}">I am new here</a><br>
+        <a href="{{ url_for('reset_password_request') }}">I forgot my password</a>
     </form>
 {% endblock %}
