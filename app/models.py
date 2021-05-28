@@ -1,4 +1,4 @@
-#!/usr/bin.env python3
+#!/usr/bin/env python3
 """
 This file contains database models for the application
 """
@@ -65,12 +65,12 @@ class Score(CRUDMixin, db.Model):
     This saves the score for a particular game run and will likewise retrieve
     the highest score if that ever changes.
     """
-    __table_args__ = DEFAULT_SCHEMA
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(64))
-    score = db.Column(db.Integer, index=True)
-    token_used = db.Column(db.Boolean)
-    created_at = db.Column(db.Numeric(precision=16, scale=6))
+    __table_args__   = DEFAULT_SCHEMA
+    id               = db.Column(db.Integer, primary_key=True)
+    username         = db.Column(db.String(64))
+    score            = db.Column(db.Integer, index=True)
+    token_used       = db.Column(db.Boolean)
+    created_at       = db.Column(db.Numeric(precision=16, scale=6))
     last_modified_at = db.Column(db.Numeric(precision=16, scale=6))
 
     def __repr__(self):
@@ -182,18 +182,60 @@ class User(UserMixin, db.Model):
     stored in the database associated
     with the flask application
     """
-    __table_args__ = DEFAULT_SCHEMA
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(64), index=True, unique=True)
-    email = db.Column(db.String(120), index=True, unique=True)
-    password_hash = db.Column(db.String(128))
-    role = db.Column(db.String(64))
-    created_at = db.Column(db.Numeric(precision=16, scale=6))
-    last_modified_at = db.Column(db.Numeric(precision=16, scale=6))
+    __table_args__   = DEFAULT_SCHEMA
+    id               = db.Column(db.Integer, primary_key=True)
+    username         = db.Column(db.String(64), index=True, unique=True, nullable=False)
+    email            = db.Column(db.String(120), index=True, unique=True, nullable=False)
+    password_hash    = db.Column(db.String(128), nullable=False)
+    role             = db.Column(db.String(64), nullable=False)
+    created_at       = db.Column(db.Numeric(precision=16, scale=6), nullable=False)
+    last_modified_at = db.Column(db.Numeric(precision=16, scale=6), nullable=False)
+    temp_start       = db.Column(db.Numeric(precision=16, scale=6), nullable=True)
+    temp_end         = db.Column(db.Numeric(precision=16, scale=6), nullable=True)
 
     def __repr__(self) -> str:
         """Returns a string representation of the User"""
         return f"User <{self.username}>"
+
+    def __todict__(self) -> dict:
+        """Returns a dictionary representation of the user"""
+        return {
+            'id': self.id,
+            'username': self.username,
+            'email': self.email,
+            'password_hash': self.password_hash,
+            'role': self.role,
+            'created_at': float(self.created_at),
+            'last_modified_at': float(self.last_modified_at),
+            'temp_start': float(self.temp_start) if self.temp_start is not None else self.temp_start,
+            'temp_end': float(self.temp_end) if self.temp_end is not None else self.temp_end
+        }
+    
+    @staticmethod
+    def from_dict(d: dict):
+        """
+        Create a user object based on a python dict.
+        The dict keys must map to the User attributes exactly.
+        """
+        now = time()
+        d['created_at'] = now
+        d['last_modified_at'] = now
+        try:
+            password = d.pop('password')
+            user = User(**d)
+            user.set_password(password)
+        except KeyError:
+            if d.get('password_hash'):
+                user = User(**d)
+            else:
+                raise KeyError('Required attributes include `password` or `password_hash`.')
+        return user
+
+    def update_from_dict(self, d: dict):
+        """pass in a dict and update the user's attributes."""
+        for k, v in d.items():
+            self.__setattr__(k, v)
+        return self
 
     def set_password(self, password: str) -> None:
         """
@@ -281,6 +323,50 @@ class User(UserMixin, db.Model):
         except DecodeError or InvalidTokenError or InvalidSignatureError or ExpiredSignatureError:
             return None
         return User.query.get(id)
+
+    def get_admin_token(self, expires_in: int = TOKEN_EXPIRE) -> str:
+        """If this user is an admin, then they can get a token for admin APIs."""
+        if self.role == 'admin':
+            return jwt.encode(
+                {'admin_id': self.id, 'exp': time() + expires_in},
+                app.config['SECRET_KEY'],
+                algorithm=ALGORITHM
+            ).decode('utf-8')
+
+    @staticmethod
+    def verify_admin_token(token: str):
+        """
+        Verifies whether or not an admin token is valid.
+        Returns the user if it is valid or None if it is not.
+        """
+        try:
+            id = jwt.decode(
+                token,
+                app.config['SECRET_KEY'],
+                algorithms=[ALGORITHM]
+            )['admin_id']
+        except DecodeError or InvalidTokenError or InvalidSignatureError or ExpiredSignatureError:
+            return None
+        return User.query.get(id)
+
+    @staticmethod
+    def get_users(limit: int = 10, page: int = 1) -> list:
+        """Find all users in the db and return them as a dict with pagination"""
+        return [
+            {
+                "username": each_user.username,
+                "email": each_user.email,
+                "role": each_user.role,
+                "temp_start": float(each_user.temp_start) if each_user.temp_start is not None else each_user.temp_start,
+                "temp_end": float(each_user.temp_end) if each_user.temp_end is not None else each_user.temp_end
+            }
+            for each_user in db.session.query(User).order_by(User.username.asc()).paginate(page=page, per_page=limit).items
+        ]
+
+    @staticmethod
+    def get_user_by_username(username: str):
+        """Pass in a username and get that user if they exist (or else None)"""
+        return db.session.query(User).filter(User.username == username).first()
 
 
 @login.user_loader

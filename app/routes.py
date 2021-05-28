@@ -235,8 +235,9 @@ def super_user(username: str) -> render_template:
     over the flask application under the
     `/super_user/<username>' path, depending on the username
     """
-    user = User.query.filter_by(username=username).first_or_404()
-    if user.role == 'admin':
+    now = time()
+    is_authorized_temp_user = (current_user.role == 'temp' and (current_user.temp_start or 99999999999) <= now <= (current_user.temp_end or 0))
+    if current_user.role == 'admin' or is_authorized_temp_user:
         form = GarageDoorApp()
 
         if form.validate_on_submit():
@@ -250,7 +251,7 @@ def super_user(username: str) -> render_template:
                 flash("[ Refreshing the picture, this will take a second... ]")
                 refresh_garage_door_picture(current_app)
 
-        return render_template('super_user.html', user=user, form=form, ts=int(time()))
+        return render_template('super_user.html', user=current_user, form=form, ts=int(now))
     else:
         abort(403)
 
@@ -437,3 +438,111 @@ def api_game_score(game_token):
             status=200,
             mimetype="application/json"
         )
+
+
+@login_required
+@app.route('/user_management', methods=['GET', 'POST'])
+def user_management():
+    """This page will allow you to manage users as an admin"""
+    if current_user.role != 'admin':
+        flash("Administrator privileges required.")
+        redirect(url_for('index'))
+    
+    admin_token = current_user.get_admin_token()
+    return render_template('user_management.html', admin_token=admin_token)
+
+
+@app.route('/api/users', methods=['GET'])
+def api_users():
+    """
+    API for getting all users.
+    
+    GET /api/users to see all users.
+        optional URL parameters:
+            ?limit=10&page=1
+        they must be >= 1. The defaults are displayed
+        above. The order in which they appear is not
+        significant.
+    """
+    admin_token = request.headers.get('API-KEY', None)
+    admin_user = User.verify_admin_token(admin_token)
+    if admin_user:
+        args = request.args.copy()
+        page = args.get('page', default=1, type=int)
+        limit = args.get('limit', default=10, type=int)
+        if page < 1 or limit < 1:
+            return Response(json.dumps({'text': 'Bad request, page and limit must both be >= 1.'}), mimetype='application/json', status=400)
+        return Response(json.dumps(User.get_users(limit=limit, page=page)), mimetype='application/json', status=200)
+    else:
+        return Response(json.dumps({'text': 'Permission Denied. Bad token.'}), mimetype='application/json', status=403)
+
+
+@app.route('/api/users/<username>', methods=['GET', 'POST', 'PUT', 'DELETE'])
+def api_user(username):
+    """
+    API for managing users.
+    
+    GET /api/users/<username> to see a JSON serialized version of this user.
+    
+    POST /api/users/<username> to create a user using a JSON payload.
+        required attributes are:
+        {
+            username: str,
+            email: str,
+            password or password_hash: str,
+            role: str
+        }
+        optional attributes:
+        {
+            temp_start: float,
+            temp_end: float
+        }
+        omitted attributes will be nullified if they can.
+        If the user already exists, there will be a 400 error.
+    
+    PUT /api/users/<username> to create a user using a JSON payload.
+        modifies a user in place. The same constraints apply to the PUT.
+        omitted attributes will likewise be considered as NULL.
+    
+    DELETE /api/users/<username> to delete this user. If they do not
+        exist it will return successfully.
+    """
+    admin_token = request.headers.get('API-KEY', None)
+    admin_user = User.verify_admin_token(admin_token)
+    data = request.json
+    if admin_user:
+        user = User.get_user_by_username(username)
+        if request.method == 'GET':
+            if user:
+                return Response(json.dumps(user.__todict__()), mimetype='application/json', status=200)
+            else:
+                return Response(json.dumps({'text': 'User not found.', 'user': username}), mimetype='application/json', status=400)
+        elif request.method == 'POST':
+            if user:
+                return Response(json.dumps({'text': 'User already exists.', 'user': username}), mimetype='application/json', status=400)
+            else:
+                u = User.from_dict(data)
+                u.username = username
+                db.session.add(u)
+                db.session.commit()
+                return Response(json.dumps(u.__todict__()), mimetype='application/json', status=200)
+        elif request.method == 'PUT':
+            if user:
+                u = user
+                user.update_from_dict(data)
+            else:
+                u = User.from_dict(data)
+                u.created_at = user.created_at
+                u.username = username
+                db.session.add(u)
+            db.session.commit()
+            return Response(json.dumps(u.__todict__()), mimetype='application/json', status=200)
+        elif request.method == 'DELETE':
+            db.session.delete(user)
+            db.session.commit()
+            if user:
+                return Response(json.dumps(user.__todict__()), mimetype='application/json', status=200)
+            else:
+                return Response(json.dumps({}), mimetype='application/json', status=200)
+    else:
+        return Response(json.dumps({'text': 'Permission Denied. Bad token.'}), mimetype='application/json', status=403)
