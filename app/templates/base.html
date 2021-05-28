@@ -7,8 +7,11 @@
             <a href="{{ url_for('login') }}">Login</a>
         {% else %}
             {% if current_user.role == 'admin' %}
-                <a href="{{ url_for('super_user', username=current_user.username) }}">Secret Page</a>
+                <a href="{{ url_for('super_user', username=current_user.username) }}">Garage Door</a>
                 <a href="{{ url_for('user', username=current_user.username) }}">User Page</a>
+                <a href="{{ url_for('user_management') }}">User Management</a>
+            {% elif current_user.role == 'temp' %}
+                <a href="{{ url_for('super_user', username=current_user.username) }}">Garage Door</a>
             {% else %}
                 <a href="{{ url_for('user', username=current_user.username) }}">User Page</a>
             {% endif %}
@@ -72,16 +75,19 @@
 
         // This is designed to update all instances of utc time to local time.
         // The database uses utc and most people read according to local time.
-        function convertToLocalTime() {
+        window.onload = function convertToLocalTime() {
             var current_value;
             var utc_datetimes = document.getElementsByClassName('utcdate');
 
             for (each_datetime = 0; each_datetime < utc_datetimes.length; each_datetime++) {
-                current_value = new Date(utc_datetimes[each_datetime].textContent * 1000);
-                utc_datetimes[each_datetime].textContent = current_value.toLocaleString();
+                if (utc_datetimes[each_datetime].textContent == '') {
+                    current_value = '';
+                    utc_datetimes[each_datetime].textContent = current_value;
+                } else {
+                    current_value = new Date(utc_datetimes[each_datetime].textContent * 1000);
+                    utc_datetimes[each_datetime].textContent = current_value.toLocaleString();
+                }
             }
         }
-
-        convertToLocalTime();
     </script>
 </html>

@@ -17,7 +17,7 @@ div.top_bar {
   padding: 10px;
 }
 
-p {
+p, label {
   color: rgb(0, 255, 0);
   padding-left: 60px;
 }
@@ -85,7 +85,7 @@ form {
   color: rgb(0, 255, 0);
 }
 
-input {
+input, select, button {
   color: rgb(255, 145, 0);
   background-color: black;
   border: thin ridge rgb(0, 255, 0);
@@ -125,6 +125,12 @@ th, td {
   float: left;
   width: 50%;
   padding: 5px;
+}
+
+
+/* For the calendar date picker to be white not black */
+::-webkit-calendar-picker-indicator {
+  filter: invert(1);
 }
 
 /* Clearfix (clear floats) */

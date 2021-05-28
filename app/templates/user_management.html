@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Create and manage users</h1>
+
+    <div id="root">
+        <label for="username">Username:</label>
+        <input type="text" v-model="username" name="username"><br>
+        <label for="email">Email:</label>
+        <input type="text" v-model="email" name="email"><br>
+        <label for="role">Role:</label>
+        <select name="role" v-model="role">
+            <option value="temp">Temporary Garage Door User</option>
+            <option value="user">Regular User</option>
+        </select><br>
+        <label for="password">Password:</label>
+        <input type="password" v-model="password"><br>
+        <label for="confirm_password">Confirm Password:</label>
+        <input type="password" v-model="confirm_password"><br>
+        <p>If assigning a temp user, this will indicate when they start getting garage door access and when they stop getting access.</p>
+        <label for="temp_start">Effective Start Date (only for temp users):</label>
+        <input type="datetime-local" v-model="temp_start" name="temp_start"><br>
+        <label for="temp_start">Effective End Date (only for temp users):</label>
+        <input type="datetime-local" v-model="temp_end" name="temp_end"><br>
+        <button @click="createUser">Create New User</button>
+        <button @click="updateUser">Update Existing User</button>
+        <button @click="deleteUser">Delete User</button>
+        <button @click="updateUserTable">Update User List</button>
+        <usertable :users="users"></usertable>
+    </div>
+
+
+    <!-- For the vue code to render -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>
+
+    <!-- To make API calls in JS -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+    <!-- For the vue code to render -->
+    <script type="text/javascript">
+        var admin_token = "{{ admin_token }}"
+    </script>
+
+    <!-- Referencing our VueJS code -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% endblock %}

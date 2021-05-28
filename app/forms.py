@@ -140,6 +140,6 @@ class GarageDoorApp(FlaskForm):
     This form is simply a submit button for opening and closing my garage door
     at home.
     """
-    open_garage_door = BooleanField('Open Garage Door')
+    open_garage_door = BooleanField('Open/Close Garage Door')
     status_picture = BooleanField('Refresh Picture')
     submit = SubmitField('RUN GARAGE DOOR APP!')
