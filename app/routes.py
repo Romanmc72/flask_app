@@ -447,7 +447,7 @@ def user_management():
     if current_user.role != 'admin':
         flash("Administrator privileges required.")
         redirect(url_for('index'))
-    
+
     admin_token = current_user.get_admin_token()
     return render_template('user_management.html', admin_token=admin_token)
 
@@ -456,7 +456,7 @@ def user_management():
 def api_users():
     """
     API for getting all users.
-    
+
     GET /api/users to see all users.
         optional URL parameters:
             ?limit=10&page=1
@@ -481,13 +481,12 @@ def api_users():
 def api_user(username):
     """
     API for managing users.
-    
+
     GET /api/users/<username> to see a JSON serialized version of this user.
-    
+
     POST /api/users/<username> to create a user using a JSON payload.
         required attributes are:
         {
-            username: str,
             email: str,
             password or password_hash: str,
             role: str
@@ -499,11 +498,11 @@ def api_user(username):
         }
         omitted attributes will be nullified if they can.
         If the user already exists, there will be a 400 error.
-    
+
     PUT /api/users/<username> to create a user using a JSON payload.
         modifies a user in place. The same constraints apply to the PUT.
         omitted attributes will likewise be considered as NULL.
-    
+
     DELETE /api/users/<username> to delete this user. If they do not
         exist it will return successfully.
     """

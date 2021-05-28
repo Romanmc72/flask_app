@@ -65,12 +65,12 @@ class Score(CRUDMixin, db.Model):
     This saves the score for a particular game run and will likewise retrieve
     the highest score if that ever changes.
     """
-    __table_args__   = DEFAULT_SCHEMA
-    id               = db.Column(db.Integer, primary_key=True)
-    username         = db.Column(db.String(64))
-    score            = db.Column(db.Integer, index=True)
-    token_used       = db.Column(db.Boolean)
-    created_at       = db.Column(db.Numeric(precision=16, scale=6))
+    __table_args__ = DEFAULT_SCHEMA
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(64))
+    score = db.Column(db.Integer, index=True)
+    token_used = db.Column(db.Boolean)
+    created_at = db.Column(db.Numeric(precision=16, scale=6))
     last_modified_at = db.Column(db.Numeric(precision=16, scale=6))
 
     def __repr__(self):
@@ -182,16 +182,16 @@ class User(UserMixin, db.Model):
     stored in the database associated
     with the flask application
     """
-    __table_args__   = DEFAULT_SCHEMA
-    id               = db.Column(db.Integer, primary_key=True)
-    username         = db.Column(db.String(64), index=True, unique=True, nullable=False)
-    email            = db.Column(db.String(120), index=True, unique=True, nullable=False)
-    password_hash    = db.Column(db.String(128), nullable=False)
-    role             = db.Column(db.String(64), nullable=False)
-    created_at       = db.Column(db.Numeric(precision=16, scale=6), nullable=False)
+    __table_args__ = DEFAULT_SCHEMA
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(64), index=True, unique=True, nullable=False)
+    email = db.Column(db.String(120), index=True, unique=True, nullable=False)
+    password_hash = db.Column(db.String(128), nullable=False)
+    role = db.Column(db.String(64), nullable=False)
+    created_at = db.Column(db.Numeric(precision=16, scale=6), nullable=False)
     last_modified_at = db.Column(db.Numeric(precision=16, scale=6), nullable=False)
-    temp_start       = db.Column(db.Numeric(precision=16, scale=6), nullable=True)
-    temp_end         = db.Column(db.Numeric(precision=16, scale=6), nullable=True)
+    temp_start = db.Column(db.Numeric(precision=16, scale=6), nullable=True)
+    temp_end = db.Column(db.Numeric(precision=16, scale=6), nullable=True)
 
     def __repr__(self) -> str:
         """Returns a string representation of the User"""
@@ -210,7 +210,7 @@ class User(UserMixin, db.Model):
             'temp_start': float(self.temp_start) if self.temp_start is not None else self.temp_start,
             'temp_end': float(self.temp_end) if self.temp_end is not None else self.temp_end
         }
-    
+
     @staticmethod
     def from_dict(d: dict):
         """
